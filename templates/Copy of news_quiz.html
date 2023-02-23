@@ -1,0 +1,365 @@
+<!DOCTYPE HTML>
+<!--
+	Phantom by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Early Bird</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href={{ url_for('static',filename="assets/css/main.css")}} /> 
+		<noscript><link rel="stylesheet" href={{ url_for('static',filename="assets/css/noscript.css")}} /></noscript>
+		<noscript><link rel="stylesheet" href={{ url_for('static',filename="assets/css/noscript.css")}} /></noscript>
+	    <script src="https://code.jquery.com/jquery-latest.min.js"></script>		
+  
+	</head>
+	<body class="is-preload">
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<div class="inner">
+
+							<!-- Logo -->
+								<a href="/" class="logo">
+									<span class="symbol"><img src={{ url_for('static',filename="images/logo.svg")}} alt="" /></span><span class="title">Early Bird</span>
+								</a>
+
+							<!-- Nav -->
+								<nav>
+									<ul>
+										<li><a href="#menu">Menu</a></li>
+									</ul>
+								</nav>
+
+						</div>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<h2>Menu</h2>
+						<ul>
+						    <li><a href="/">Home</a></li>
+						    <li><a href="/level_1">K-pop Funny</a></li>
+						    <li><a href="/level_2">Talk Funny</a></li>
+						    <li><a href="/level_3">News Funny</a></li>
+						    <li><a href="elements.html">Elements</a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+
+				
+					<div id="main">
+						<div class="inner">
+						    <h2> 선택하신 뉴스로 한국어를 학습해 보겠습니다.</h2>
+                            <h1>{{news_title}}</h1>
+                            <br>
+                            <p id = "newsText">
+                            {% for news in news_text %}
+                                {{news}}<br><br>
+                            {% endfor %}
+                            </p>
+                            <div style="display:none">{{news_link}}</div>
+                            <hr >
+                            
+                            <!--1번문제-->
+                            <h2>Q1. 이 뉴스는 다음중 어떤 분류에 속할까요?</h2>                      
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="IT과학">
+                                <label class="form-check-label" for="IT과학"> IT과학</label>
+                            </span>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="경제">
+                                <label class="form-check-label" for="경제"> 경제</label>
+                            </span>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="사회">
+                                <label class="form-check-label" for="사회"> 사회</label>
+                            </span>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="생활문화">
+                                <label class="form-check-label" for="생활문화"> 생활문화</label>
+                            </span>                          
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="세계">
+                                <label class="form-check-label" for="세계"> 세계</label>
+                            </span>  
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="스포츠">
+                                <label class="form-check-label" for="스포츠"> 스포츠</label>
+                            </span>    
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="정치">
+                                <label class="form-check-label" for="정치"> 정치</label>
+                            </span>
+                            <br>
+                            <input type = "button" id="topic" value = "제출"> 
+                            <script>
+                                $('#topic').click(function(){
+                                    var id =  $("input[type=radio][name=flexRadioDefault]:checked").attr('id')
+                                    var txt = $("#newsText").text();
+                                    var postdata = {'id':id , 'text': txt };
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '{{url_for("ajax_topic")}}',
+                                        data: JSON.stringify(postdata),
+                                        dataType : 'JSON',
+                                        contentType: "application/json",
+                                        success: function(data){
+                                            $("#newsTopicByYou").html('YOU: ' + id) ;
+                                            $("#newsTopicByAI").html('AI: ' + data.result2) ;
+                                        },
+                                        error: function(request, status, error){
+                                            alert('ajax 통신 실패')
+                                            alert(error);
+                                        }
+                                    })
+                                })
+                            </script>
+                            <br><br>
+                            <h4><span id="newsTopicByYou"></span>
+                            <span id="newsTopicByAI"></span></h4>
+                            <br><br>
+                            <hr >
+                            
+                            <!--2번문제-->
+                            <h2>Q2. 본문 문장을 요약해 보세요</h2>
+                            <input class="form-control"  type="text" id='id_summary'  placeholder="정답을 적어 주세요.">
+                            <!--<textarea type="text" id='id_summary' rows="3"></textarea>-->
+                            <br >
+                            <input type = "button" id="news_summarize" value = "제출"> 
+                            <script>
+                                $('#news_summarize').click(function(){
+                                    var whole_txt = $("#newsText").text();
+                                    var sum_txt_by_user =  $("#id_summary").val();
+                                    var postdata = {'text1': whole_txt, 'text2': sum_txt_by_user };
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '{{url_for("ajax_summarization")}}',
+                                        data: JSON.stringify(postdata),
+                                        dataType : 'JSON',
+                                        contentType: "application/json",
+                                        success: function(data){
+                                            $("#newsSummaryByYou").html('YOU: ' + sum_txt_by_user) ;
+                                            $("#newsSummaryByAI").html('AI: ' + data.result2['summarized_text']) ;
+                                            $("#summaryScore").html('SCORE: ' + data.result2['score']) ;
+                                        },
+                                        error: function(request, status, error){
+                                            alert('ajax 통신 실패')
+                                            alert(error);
+                                        }
+                                    })
+                                })
+                            </script>   
+                            <br><br>
+                            <h4><div id="newsSummaryByYou"></div><br>
+                            <div id="newsSummaryByAI"></div><br>
+                            <div id="summaryScore"></div></h4>
+                            <br><br>
+                            <hr >
+                            
+                            <!--3번문제-->
+                            <h2>Q3. "문제 생성"을 시작하면 뉴스 본문 중 하나의 문장이 주어집니다.<br>
+                            아래에 따라 문장 유형을 맞춰 보세요</h2>
+                            
+                            <li>유형 (사실형, 추론형, 대화형, 예측형)</li>
+                            <li>극성 : 문장의 극성 (긍정, 부정, 미정)</li>
+                            <li>시제 : 문장의 시제 (과거, 현재, 미래)</li>
+                            <li>확실성 : 문장의 확실성 (확실, 불확실)</li>
+                            <br>
+                            <input type = "button" id="create_problem" value = "문제 생성">                             
+                            <script>
+                                $('#create_problem').click(function(){
+                                    var whole_txt = $("#newsText").text();  
+                                    var postdata = {'text': whole_txt};
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '{{url_for("ajax_create_problem")}}',
+                                        data: JSON.stringify(postdata),
+                                        dataType : 'JSON',
+                                        contentType: "application/json",
+                                        success: function(data){
+                                            $("#q_sentence").html(data.result2) ;
+                                            $("#sentencetype_user").html('') ;
+                                            $("#sentencetype_ai").html('') ;
+                                        },
+                                        error: function(request, status, error){
+                                            alert('ajax 통신 실패')
+                                            alert(error);
+                                        }
+                                    })
+                                })
+                            </script>
+                            <br>
+                            <h2><div id="q_sentence"></div></h2>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_type" id="대화">
+                                <label class="form-check-label" for="대화"> 대화</label>
+                            </span>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_type" id="사실">
+                                <label class="form-check-label" for="사실"> 사실</label>
+                            </span>  
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_type" id="예측">
+                                <label class="form-check-label" for="예측"> 예측</label>
+                            </span>  
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_type" id="추론">
+                                <label class="form-check-label" for="추론"> 추론</label>
+                            </span>  
+                            <br>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_pol" id="긍정">
+                                <label class="form-check-label" for="긍정"> 긍정</label>
+                            </span>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_pol" id="미정">
+                                <label class="form-check-label" for="미정"> 미정</label>
+                            </span>  
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_pol" id="부정">
+                                <label class="form-check-label" for="부정"> 부정</label>
+                            </span> 
+                            <br>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_tense" id="과거">
+                                <label class="form-check-label" for="과거"> 과거</label>
+                            </span>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_tense" id="미래">
+                                <label class="form-check-label" for="미래"> 미래</label>
+                            </span>  
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_tense" id="현재">
+                                <label class="form-check-label" for="현재"> 현재</label>
+                            </span> 
+                            <br>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_sure" id="불확실">
+                                <label class="form-check-label" for="불확실"> 불확실</label>
+                            </span>
+                            <span class="form-check">
+                                <input class="form-check-input" type="radio" name="s_sure" id="확실">
+                                <label class="form-check-label" for="확실"> 확실</label>
+                            </span>
+                            <br>
+                            <input type = "button" id="sentence_type" value = "제출"> 
+                            <br><br>                            
+                            <h4><div id = 'sentencetype_user'></div><br>
+                            <div id= 'sentencetype_ai'></div></h4>
+                            <br><br> 
+                            <script>
+                                $('#sentence_type').click(function(){
+                                    var id1 =  $("input[type=radio][name=s_type]:checked").attr('id')
+                                    var id2 =  $("input[type=radio][name=s_pol]:checked").attr('id')
+                                    var id3 =  $("input[type=radio][name=s_tense]:checked").attr('id')
+                                    var id4 =  $("input[type=radio][name=s_sure]:checked").attr('id')
+                                    var txt = $("#q_sentence").text();
+                                    var postdata = {'id': (id1+','+id2 +','+ id3+','+ id4), 'text': txt };
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '{{url_for("ajax_sentence_type")}}',
+                                        data: JSON.stringify(postdata),
+                                        dataType : 'JSON',
+                                        contentType: "application/json",
+                                        success: function(data){
+                                            $("#sentencetype_user").html('YOU: ' + postdata['id']) ;
+                                            $("#sentencetype_ai").html('AI: ' + data.result2) ;
+                                        },
+                                        error: function(request, status, error){
+                                            alert('ajax 통신 실패')
+                                            alert(error);
+                                        }
+                                    })
+                                })
+                            </script>  
+                            <hr >
+                            
+                            <!--4번문제-->
+                            <h2>Q4. "문제 생성"을 시작하면 질문이 나옵니다. 질문에 답변해 보세요.</h2>
+                            <br>
+                            <input type = "button" id="create_qa_problem" value = "문제 생성">                             
+                            <script>
+                                $('#create_qa_problem').click(function(){
+                                    var whole_txt = $("#newsText").text();  
+                                    var postdata = {'text': whole_txt};
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: '{{url_for("create_qa_problem")}}',
+                                        data: JSON.stringify(postdata),
+                                        dataType : 'JSON',
+                                        contentType: "application/json",
+                                        success: function(data){
+                                            $("#qna_sentence").html(data.result2) ;
+                                        },
+                                        error: function(request, status, error){
+                                            alert('ajax 통신 실패')
+                                            alert(error);
+                                        }
+                                    })
+                                })
+                            </script>
+                            <br>
+                            <h2><div id="qna_sentence"></div></h2>
+
+                                                        
+						</div>
+					</div>
+ 
+				<!-- Footer -->
+					<footer id="footer">
+						<div class="inner">
+							<section>
+								<h2>Get in touch</h2>
+								<form method="post" action="#">
+									<div class="fields">
+										<div class="field half">
+											<input type="text" name="name" id="name" placeholder="Name" />
+										</div>
+										<div class="field half">
+											<input type="email" name="email" id="email" placeholder="Email" />
+										</div>
+										<div class="field">
+											<textarea name="message" id="message" placeholder="Message"></textarea>
+										</div>
+									</div>
+									<ul class="actions">
+										<li><input type="submit" value="Send" class="primary" /></li>
+									</ul>
+								</form>
+							</section>
+							<section>
+								<h2>Follow</h2>
+								<ul class="icons">
+									<li><a href="#" class="icon brands style2 fa-twitter"><span class="label">Twitter</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-facebook-f"><span class="label">Facebook</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-instagram"><span class="label">Instagram</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-dribbble"><span class="label">Dribbble</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-github"><span class="label">GitHub</span></a></li>
+									<li><a href="#" class="icon brands style2 fa-500px"><span class="label">500px</span></a></li>
+									<li><a href="#" class="icon solid style2 fa-phone"><span class="label">Phone</span></a></li>
+									<li><a href="#" class="icon solid style2 fa-envelope"><span class="label">Email</span></a></li>
+								</ul>
+							</section>
+							<ul class="copyright">
+								<li>&copy; Untitled. All rights reserved</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+							</ul>
+						</div>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src={{ url_for('static',filename="assets/js/jquery.min.js")}}></script>
+			<script src={{ url_for('static',filename="assets/js/browser.min.js")}}></script>
+			<script src={{ url_for('static',filename="assets/js/breakpoints.min.js")}}></script>
+			<script src={{ url_for('static',filename="assets/js/util.js")}}></script>
+			<script src={{ url_for('static',filename="assets/js/main.js")}}></script>
+
+	</body>
+</html>
